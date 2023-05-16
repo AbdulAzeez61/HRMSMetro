@@ -10,16 +10,23 @@ import {
   FormLabel,
   FormGroup,
   Checkbox,
+  Alert,
+  Snackbar,
   FormHelperText,
 } from "@mui/material";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import updateCourse from "../../utils/updateCourse";
 import CloudinaryUploadWidget from "./CloudinaryUploadWidget";
 
 const CourseForm = (props) => {
-  const { formData } = props;
+  const { formData, id, username } = props;
 
-  const [notification, setNotification] = useState(false);
+  const queryClient = useQueryClient();
+  const [notification, setNotification] = useState({
+    status: false,
+    severity: "",
+    message: "",
+  });
 
   const [data, setFields] = useState({
     ...formData,
@@ -55,13 +62,25 @@ const CourseForm = (props) => {
     });
   };
 
-  console.log(data);
   const mutation = useMutation(updateCourse, {
     onError: (error) => {
       console.log("error updating course", error);
+      setNotification({
+        message: "Course Update Failed",
+        severity: "error",
+        status: true,
+      });
     },
     onSuccess: (data) => {
       console.log("course successfully updated", data);
+      setNotification({
+        message: "Course Update Success",
+        severity: "success",
+        status: true,
+      });
+
+      queryClient.invalidateQueries(["details", id, "admin", username]);
+      // queryClient.invalidateQueries(["details", id, "admin", username]);
     },
   });
 
@@ -87,8 +106,32 @@ const CourseForm = (props) => {
     }
   };
 
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setNotification((prev) => ({
+      ...prev,
+      status: false,
+    }));
+  };
+
   return (
     <Box noValidate autoComplete="off">
+      <Snackbar
+        open={notification.status}
+        autoHideDuration={3000}
+        onClose={handleClose}
+      >
+        <Alert
+          severity={notification.severity}
+          sx={{ width: "100%" }}
+          onClose={handleClose}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
       <Typography
         variant="h4"
         sx={{
@@ -114,6 +157,8 @@ const CourseForm = (props) => {
             onChange={handleChange}
             required
             label="Course Name"
+            error={data.cname === ""}
+            helperText={data.cname === "" ? "Course name is required" : ""}
             value={data.cname}
           />
 
@@ -121,16 +166,17 @@ const CourseForm = (props) => {
             name="description"
             required
             label="Description"
-            helperText="Incorrect entry."
             onChange={handleChange}
             value={data.description}
+            error={data.description === ""}
+            helperText={data.description === "" ? "Provide a description" : ""}
             rows={6}
             multiline
           />
 
           <CloudinaryUploadWidget setFields={setFields} />
 
-          <Box>
+          {/* <Box>
             <TextField
               onKeyDown={handleKeyDown}
               label="Skills"
@@ -148,7 +194,7 @@ const CourseForm = (props) => {
                 />
               ))}
             </>
-          </Box>
+          </Box> */}
 
           <Box>
             <FormLabel component="legend">
@@ -189,7 +235,11 @@ const CourseForm = (props) => {
                 style={{ color: "black" }}
               />
             </FormGroup>
-            <FormHelperText>select one or more</FormHelperText>
+            <FormHelperText error={data.required.length === 0}>
+              {data.required.length === 0
+                ? "Please select at least one department"
+                : "Select one or more"}
+            </FormHelperText>
           </Box>
 
           <TextField
@@ -197,9 +247,12 @@ const CourseForm = (props) => {
             required
             label="Time To Complete"
             onChange={handleChange}
-            helperText="string only"
             sx={{ width: "200px" }}
             value={data.ETC}
+            error={data.ETC === ""}
+            helperText={
+              data.ETC === "" ? "Provide a description" : "Strings only"
+            }
           />
           <Button variant="contained" color="primary" type="submit">
             Update

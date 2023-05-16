@@ -6,7 +6,7 @@ const BarChart = (props) => {
 
   const eChartsOption = {
     xAxis: {
-      data: ["HR", "IT", "LAW"],
+      data: ["HR", "IT", "LAW", "Financial"],
     },
     yAxis: {},
     series: [

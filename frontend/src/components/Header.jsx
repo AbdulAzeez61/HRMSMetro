@@ -47,9 +47,9 @@ const Header = () => {
               color: "#fff",
               borderRadius: "0.1rem",
             }}
-            to="/learning/workshops"
+            to="/learning/admin"
           >
-            Workshops
+            Admin
           </Button>
           <Button
             variant="text"

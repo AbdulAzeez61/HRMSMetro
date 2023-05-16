@@ -12,6 +12,7 @@ import {
   FormHelperText,
   Checkbox,
   Button,
+  filledInputClasses,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { AlertBox } from "./index.mjs";
@@ -39,6 +40,21 @@ const CreateNew = () => {
     type: "",
   });
   const [tags, setTags] = useState([]);
+
+  const setDemo = () => {
+    const randomNid = Math.floor(Math.random() * 9000) + 1000;
+    setFields((prev) => ({
+      ...prev,
+      cname: "How to Achieve Goals Through Personal Development",
+      category: "GE",
+      nid: randomNid,
+      ETC: "1 week",
+      requireTo: [],
+      description:
+        "In addition to the topics mentioned above, the course will also explore the role of mindset in sachieving goals. Students will learn about the difference between a fixed and a growth mindset, and how adopting a growth mindset can help them overcome challenges and achieve their goals. The course will also cover techniques for managing stress and maintaining a positive outlook, even in the face of setbacks. Throughout the course, students will have the opportunity to apply what they have learned to their own lives, setting goals and developing plans to achieve them. By the end of the course, students will have gained valuable insights into their own personal development journey and will be well on their way to achieving their goals.Received message. In addition to the topics mentioned above, the course will also explore the role of mindset in achieving goals. Students will learn about the difference between a fixed and a growth mindset, and how adopting a growth mindset can help them overcome challenges and achieve their goals. The course will also cover techniques for managing stress and maintaining a positive outlook, even in the face of setbacks. Throughout the course, students will have the opportunity to apply what they have learned to their own lives, setting goals and developing plans to achieve them. By the end of the course, students will have gained valuable insights into their own personal development journey and will be well on their way to achieving their goals",
+      skills: [],
+    }));
+  };
 
   const [fields, setFields] = useState({
     cname: "",
@@ -165,11 +181,14 @@ const CreateNew = () => {
             label="Course Name"
             onChange={handleChange}
             value={fields.cname}
+            error={fields.cname === ""}
+            helperText={fields.cname === "" ? "Course Name is required" : ""}
           />
           <Box>
             <TextField
               id="outlined-select-category"
               select
+              error={fields.category === ""}
               name="category"
               value={fields.category}
               defaultValue="GE"
@@ -190,9 +209,12 @@ const CreateNew = () => {
               required
               sx={{ marginLeft: "15px" }}
               onChange={handleChange}
+              error={fields.nid === ""}
               label="Course ID"
               value={fields.nid}
-              helperText="numbers only"
+              helperText={
+                fields.nid === "" ? "Course ID is required" : "numbers only"
+              }
             />
           </Box>
 
@@ -202,6 +224,7 @@ const CreateNew = () => {
             value={fields.description}
             required
             label="Description"
+            error={fields.description === ""}
             rows={6}
             multiline
           />
@@ -247,7 +270,12 @@ const CreateNew = () => {
                 style={{ color: "black" }}
               />
             </FormGroup>
-            <FormHelperText>select one or more</FormHelperText>
+
+            <FormHelperText error={fields.requireTo.length === 0}>
+              {fields.requireTo.length === 0
+                ? "Please select at least one department"
+                : "Select one or more"}
+            </FormHelperText>
           </Box>
 
           <TextField
@@ -255,10 +283,17 @@ const CreateNew = () => {
             onChange={handleChange}
             value={fields.ETC}
             required
+            error={fields.ETC === ""}
+            helperText={
+              fields.ETC === "" ? "Course ID is required" : "string only"
+            }
             label="Time To Complete"
-            helperText="string only"
             sx={{ width: "200px" }}
           />
+
+          <Button variant="contained" color="error" onClick={setDemo}>
+            Demo
+          </Button>
 
           <Button variant="contained" color="primary" type="submit">
             Submit

@@ -5,7 +5,6 @@ function useAuth() {
   const validateSession = () => {
     // authenticate user and set user state
     const username = localStorage.getItem("username");
-
     const logged = username ? true : false;
     return logged;
   };

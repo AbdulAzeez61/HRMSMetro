@@ -24,6 +24,7 @@ const SignIn = () => {
       localStorage.setItem("username", data.user.username);
       localStorage.setItem("firstName", data.user.firstName);
       localStorage.setItem("lastName", data.user.lastName);
+      localStorage.setItem("role", data.user.role);
 
       // const toka = localStorage.getItem("token");
       const username = localStorage.getItem("username");

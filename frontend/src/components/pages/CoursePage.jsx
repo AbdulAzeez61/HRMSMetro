@@ -1,29 +1,57 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import fetchCourse from "../../../utils/fetchCourse";
-import enrollEmployee from "../../../utils/enrollEmployee";
-import background from "../../assets/coursebg.jpg";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { useParams } from "react-router-dom";
-import { border, borderRadius, height, padding, positions } from "@mui/system";
 import { Link } from "react-router-dom";
+import { DialogBox } from "../index.mjs";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
 
+import fetchCourse from "../../../utils/fetchCourse";
+import enrollEmployee from "../../../utils/enrollEmployee";
+import background from "../../assets/coursebg.jpg";
+
 const CoursePage = () => {
   const { id } = useParams();
+  const username = localStorage.getItem("username");
 
   const [enroll, setEnroll] = useState(false);
+  const [open, setOpen] = React.useState(false);
+  const [notification, setNotification] = useState({
+    success: false,
+    title: "",
+    message: "",
+  });
+
+  const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation(enrollEmployee, {
     onSuccess: (data) => {
-      setEnroll(true);
+      setNotification((prev) => ({
+        success: true,
+        title: data.message,
+        message: "Congratulation, You successfully enrolled to the course.",
+      }));
+      queryClient.invalidateQueries(["details", id, "employee", username]);
+      setOpen(true);
     },
     onError: (error) => {
-      console.log(`Error Occured ${error}`);
+      setOpen(true);
+      setNotification((prev) => ({
+        ...prev,
+        title: error.response.data.message,
+        message:
+          "Sorry!!. Looks like you are not allowed to enrolled this course. This happen when creators provide access only to choosen departments.",
+      }));
+      queryClient.invalidateQueries(["details", id, "employee", username]);
     },
   });
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handeEnrolled = async () => {
     try {
@@ -32,9 +60,6 @@ const CoursePage = () => {
       console.error(err);
     }
   };
-
-  const username = localStorage.getItem("username");
-  console.log(username);
 
   const { data, isLoading } = useQuery(
     ["details", id, "employee", username],
@@ -57,8 +82,9 @@ const CoursePage = () => {
   const { cid, description, cname, skills, updatedAt, ETC, createdAt } = data;
   console.log(data);
 
-  const skiilSet = skills.map((skill) => (
+  const skiilSet = skills.map((skill, index) => (
     <span
+      key={index}
       style={{
         backgroundColor: "#eeeeee",
         fontSize: "1rem",
@@ -83,6 +109,14 @@ const CoursePage = () => {
         overflow: "hidden",
       }}
     >
+      {open && (
+        <DialogBox
+          open={open}
+          handleClose={handleClose}
+          title={notification.title}
+          message={notification.message}
+        />
+      )}
       <Box
         pl={10}
         pr={15}
@@ -138,7 +172,6 @@ const CoursePage = () => {
               Enroll
             </Button>
           )}
-
           {enroll && (
             <Button
               variant="contained"
@@ -151,7 +184,6 @@ const CoursePage = () => {
               Visit
             </Button>
           )}
-
           <Stack direction="row" pt={2}>
             {skiilSet}
           </Stack>

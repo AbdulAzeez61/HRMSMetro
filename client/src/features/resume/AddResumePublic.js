@@ -76,7 +76,7 @@ const AddResumePublic = () => {
             setResumename('')
             setPost('')
             setResume('')
-            window.location.replace('http://localhost:3000/dash/admin/resume/search');
+            window.location.replace('http://localhost:3000/');
         }
     }, [isSuccess, navigate])
 
@@ -88,7 +88,9 @@ const AddResumePublic = () => {
 
     const onSaveResumeClicked = async (e) => {
         e.preventDefault()
+        console.log("can save 1`")
         if (canSave) {
+            console.log("can save")
             await addNewResume({ fullname, forthepostof, resumess, match })
         }
     }
@@ -348,6 +350,7 @@ const AddResumePublic = () => {
                                             type="submit"
                                             class="btn btn-primary"
                                             title="Save"
+                                            onClick={onSaveResumeClicked}
                                             disabled={!canSave}
                                         >
                                             Save
